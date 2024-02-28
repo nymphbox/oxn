@@ -1,0 +1,45 @@
+# inject packet loss of 15% while increasing sampling rate to 5%
+experiment:
+  responses:
+    - frontend_traces:
+        type: trace
+        service_name: frontend 
+        left_window: 240s 
+        right_window: 240s 
+        limit: 100000
+    - recommendation_traces:
+        type: trace
+        service_name: recommendationservice 
+        left_window: 240s 
+        right_window: 240s 
+        limit: 100000
+  treatments:
+    - packet_loss_treatment:
+        action: loss
+        params: {
+          service_name: recommendation-service,
+          loss_percentage: 15%,
+          interface: eth0,
+          duration: 120s
+        }
+    - sampling:
+        action: probl
+        params: {
+          otelcol_extras: opentelemetry-demo/src/otelcollector/otelcol-config-extras.yml,
+          percentage: 5,
+          seed: 22
+        }
+  sue:
+    compose: opentelemetry-demo/docker-compose.yml
+    exclude: [loadgenerator]
+  loadgen:
+    run_time: 10m
+    stages: 
+    - {duration: 600, users: 50, spawn_rate: 25}
+    tasks:
+    - { endpoint: /, verb: get, weight: 1, params: { } }
+    - { endpoint: /api/products/0PUK6V6EV0, verb: get, weight: 10, params: { } }
+    - { endpoint: /api/recommendations, verb: get, weight: 3, params: { "productIds": ["1YMWWN1N4O"]}}
+    - { endpoint: /api/cart, verb: get, weight: 3, params: { } }
+    - { endpoint: /api/data, verb: get, weight: 3, params: { "contextKeys": [ "accessories" ] } }
+    - { endpoint: /api/cart, verb: post, weight: 2, params: { "item": {"productId":"6E92ZMYYFZ", "quantity":2, }, "userId":'ab2d0fc0-7224-11ec-8ef2-b658b885fb3',} }

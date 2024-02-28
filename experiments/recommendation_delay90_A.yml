@@ -1,0 +1,40 @@
+# inject a packet delay of 0-90ms while increasing the otel metric inverval to 1s
+experiment:
+  responses:
+    - recommendations_total:
+        type: metric
+        metric_name: increase(app_recommendations_counter_total[90s])
+        left_window: 240s
+        right_window: 240s
+        step: 1
+  treatments:
+    - delay_treatment:
+        action: delay
+        params: {
+          service_name: recommendation-service,
+          delay_time: 45ms,
+          delay_jitter: 45ms,
+          duration: 120s,
+          interface: eth0,
+        }
+    - interval:
+        action: otel_metrics_interval
+        params: {
+          compose_file: opentelemetry-demo/docker-compose.yml,
+          service_name: recommendationservice,
+          interval: 1s
+        }
+  sue:
+    compose: opentelemetry-demo/docker-compose.yml
+    exclude: [loadgenerator]
+  loadgen:
+    run_time: 10m
+    stages: 
+    - {duration: 600, users: 50, spawn_rate: 25}
+    tasks:
+    - { endpoint: /, verb: get, weight: 1, params: { } }
+    - { endpoint: /api/products/0PUK6V6EV0, verb: get, weight: 10, params: { } }
+    - { endpoint: /api/recommendations, verb: get, weight: 3, params: { "productIds": ["1YMWWN1N4O"]}}
+    - { endpoint: /api/cart, verb: get, weight: 3, params: { } }
+    - { endpoint: /api/data, verb: get, weight: 3, params: { "contextKeys": [ "accessories" ] } }
+    - { endpoint: /api/cart, verb: post, weight: 2, params: { "item": {"productId":"6E92ZMYYFZ", "quantity":2, }, "userId":'ab2d0fc0-7224-11ec-8ef2-b658b885fb3',} }
