@@ -1,9 +1,21 @@
 ## Introduction
+
+Our papers on observability experiments and this software can be found
+[here](https://arxiv.org/pdf/2403.00633) and [here](https://arxiv.org/pdf/2407.09644).
+
 OXN - **O**bservability e**X**periment e**N**gine - 
 is an extensible software framework to run observability experiments and compare observability design decisions.
 OXN follows the design principles of cloud benchmarking and strives towards portable and repeatable experiments.
-Experiments are defined as yaml-based configuration files, which allows them to be shared, versioned and repeated.
-OXN automates every step of the experiment process in a straightforward manner, from SUE setup to data collection, processing and reporting. 
+Experiments are defined as YAML-based configuration files, which allows them to be shared, versioned and repeated.
+OXN tries to automate every step of the experiment process in a straightforward manner, from SUE setup to data collection, processing and reporting. 
+
+Observability experiments allow to systematically investigate 
+how observable a given system is.
+In observability experiments, we inject various faults into a 
+system and optionally modify the instrumentation of the system. 
+These experiments produce data (i.e. metrics or distributed traces), which we can then use to judge the
+quality of the systems observability by measuring the degree to which the injected
+faults are visible in the collected data.
 
 
 ## Installation
@@ -19,11 +31,11 @@ OXN automates every step of the experiment process in a straightforward manner, 
 
     ```cd opentelemetry-demo/```
 
-2. Build needed containers. This will take a while a while
+2. Build needed containers. This might take a while.
 
     ``` make build ```
 
-    Alternativly, you can just build the container with fault injection, e.g., the recommender service. This may cause incompatability in the future. 
+    Alternatively, you can just build the container with fault injection, e.g., the recommender service. This may cause incompatability in the future. 
 
     ``` docker compose build recommendationservice ```
 
